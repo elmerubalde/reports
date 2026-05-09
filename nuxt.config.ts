@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://jil-cms.canadacentral.cloudapp.azure.com:8080:',
-      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '181319976297-83r4e1dttlu30ripasluhukablvqs933.apps.googleusercontent.com'
+      googleClientId: '102141595773-j5945pt7t100bm59je2ko17ga4n5culu.apps.googleusercontent.com'
     }
   },
   css: ['~/assets/css/tailwind.css'],
