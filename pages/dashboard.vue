@@ -12,8 +12,8 @@ const auth = useAuth()
 <template>
   <div class="min-h-screen p-6">
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-slate-900">Dashboard</h1> 
+    <div class="mt-8 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900">Dashboard</h2> 
     </div>
  
     <!-- 3-Column Chart Grid -->
