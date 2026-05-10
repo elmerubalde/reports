@@ -18,6 +18,8 @@ export const useAuth = () => {
   const auth = useState<AuthUser | null>("authUser", () => null);
   const token = useState<string | null>("authToken", () => null);
   const config = useRuntimeConfig();
+  const apiCache = new Map<string, { data: any; timestamp: number }>();
+  const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   const loadFromStorage = () => {
     if (process.client) {
@@ -77,22 +79,40 @@ export const useAuth = () => {
   };
 
   const apiFetch = async <T = any>(path: string, options: Record<string, any> = {}) => {
+    const cacheKey = `${path}:${JSON.stringify(options)}`;
+    
+    // Check cache first
+    const cached = apiCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data as T;
+    }
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...(options.headers || {})
     };
 
-    console.log(path);
-
     if (token.value) {
       headers['X-Access-Token'] = `${token.value}`;
     }
  
-    return await $fetch<T>(`${config.public.apiBase}${path}`, {
+    const result = await $fetch<T>(`${config.public.apiBase}${path}`, {
       ...options,
       headers
     });
+
+    // Store in cache
+    apiCache.set(cacheKey, { data: result, timestamp: Date.now() });
+    return result;
   };
+
+  const clearApiCache = () => {
+    apiCache.clear();
+  };
+
+  const apiMultiFetch = async <T = any>(paths: string[]) => {
+    return await Promise.all(paths.map((path) => apiFetch<T>(path)));
+  }
 
   return {
     auth,
@@ -101,6 +121,8 @@ export const useAuth = () => {
     signIn,
     signInWithGoogle,
     signOut,
-    apiFetch
+    apiFetch,
+    apiMultiFetch,
+    clearApiCache
   };
 };

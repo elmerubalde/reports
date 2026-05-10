@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuth } from '~/composables/useAuth'
-import ecobarchart  from './ecobarchart.vue'
-import membernetworkdistribution from './membernetworkdistribution.vue'
-import memberattendance from './memberattendance.vue'
-import lgmemberattendance from './lgmemberattendance.vue'
-import perlgmemberattendance from './perlgmemberattendance.vue'
+import ecobarchart  from '~/components/charts/ecobarchart.vue'
+import membernetworkdistribution from '~/components/charts/membernetworkdistribution.vue'
+import memberattendance from '~/components/charts/memberattendance.vue'
+import lgmemberattendance from '~/components/charts/lgmemberattendance.vue'
+import perlgmemberattendance from '~/components/charts/perlgmemberattendance.vue'
 const auth = useAuth()
 </script>
 
