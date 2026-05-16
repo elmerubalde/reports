@@ -149,12 +149,12 @@ const bgColour2 = ref('#222');
 const internalData = ref({});
 const pctIncrease = ref(15);
 const startYear = ref(2020);
-const yearKpi = ref('');
-const yearKpiTarget = ref('');
-const yearKpiAccomplished = ref('');
-const prevYearKpiAccomplished = ref('');
-const pctTargetVsActual = ref('');
-const pctActualVsPrevious = ref('');
+const yearKpi = ref(2020);
+const yearKpiTarget = ref(0);
+const yearKpiAccomplished = ref(0);
+const prevYearKpiAccomplished = ref(0);
+const pctTargetVsActual = ref(0);
+const pctActualVsPrevious = ref(0);
 const loadingMembership = ref(false);
 const errorMessage = ref('');
 
@@ -165,6 +165,8 @@ const calculateTarget = async () => {
   for (let i = 1; i < series.data.length ; i++) {
     series.data[i] = Math.floor( series.data[i - 1] * rate );
   }
+
+  await calculate(data.value);
 }; 
  
 const calculate = async (newData: IData) => {
@@ -177,14 +179,12 @@ const calculate = async (newData: IData) => {
   prevYearKpiAccomplished.value = newData.datasets[1].data.length > 0 ? newData.datasets[1].data.at(-2) : 0 ;
   pctTargetVsActual.value = Math.floor(((yearKpiAccomplished.value - yearKpiTarget.value) / yearKpiTarget.value ) * 100) ;
   pctActualVsPrevious.value = Math.floor(((yearKpiAccomplished.value - prevYearKpiAccomplished.value) / prevYearKpiAccomplished.value) * 100);
-  
-  await calculateTarget();
 };
 
 watch(props.srcData, async (newData, oldData) => {
   if(props.srcData.labels.length > 1) { 
     data.value = cloneDeep(props.srcData); 
-    await calculate(data.value); 
+    await calculateTarget();
   }
 });
 
