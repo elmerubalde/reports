@@ -57,7 +57,7 @@ const submit = async () => {
 
   try {
     await auth.signIn(username.value.trim(), password.value);
-    await router.push("/");
+    await router.push("/dashboard");
   } catch (err) {
     if (err instanceof Error) {
       error.value = err.message;

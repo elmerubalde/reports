@@ -12,7 +12,7 @@
       >
         {{ 'Dashboard' }}
       </button>
-      <button 
+      <button v-if="isLoggedIn"
         type="button"
         @click="navKPI"
         class="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
@@ -83,6 +83,11 @@ const navLogin = async () => {
 
 onMounted(() => {
   theme.value = localStorage.getItem('theme') || 'light';
+  if(isLoggedIn.value) {
+    router.push("/dashboard"); 
+  } else { 
+    router.push("/login");
+  }
 });
 
 watch(theme, (value) => {
