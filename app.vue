@@ -1,17 +1,31 @@
 <template>
   <div class="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
-     <div class="fixed left-4 top-4">
+    <div class="fixed left-4 top-4">
       <img  v-if="theme !== 'dark'"  style="height:40px" src="/assets/img/churchlogo.png"> 
       <img v-if="theme === 'dark'" style="height:40px" src="/assets/img/churchlogo2.png"> 
     </div>
     <div class="fixed right-4 top-4 z-50 flex items-center gap-3 rounded-full border border-slate-200 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-900/95 dark:text-slate-200">
-      <button
+      <button v-if="isLoggedIn"
         type="button"
-        @click="navhome"
+        @click="navDashboard"
         class="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
       >
-        {{ 'Home' }}
+        {{ 'Dashboard' }}
       </button>
+      <button 
+        type="button"
+        @click="navKPI"
+        class="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+      >
+        {{ 'KPI' }}
+      </button>
+      <button v-if="!isLoggedIn"
+        type="button"
+        @click="navLogin"
+        class="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+      >
+        {{ 'Login' }}
+      </button> 
       <button v-if="isLoggedIn"
         type="button"
         @click="logout"
@@ -53,6 +67,18 @@ const logout = async () => {
 
 const navhome = async () => {   
   await router.push("/");
+}
+
+const navDashboard = async () => {   
+  await router.push("/dashboard");
+}
+
+const navKPI = async () => {   
+  await router.push("/kpi");
+}
+
+const navLogin = async () => {   
+  await router.push("/login");
 }
 
 onMounted(() => {
