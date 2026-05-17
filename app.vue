@@ -58,7 +58,7 @@ const auth = useAuth();
 const router = useRouter();
 
 const theme = ref('light');
-const themeSwitch = ref(true);
+const themeSwitch = ref(false);
 const themeLabel = computed(() => theme.value === 'dark' ? 'Dark' : 'Light');
 const isLoggedIn = computed(() => auth.isLoggedIn.value);
 const logout = async () => {   
