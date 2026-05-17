@@ -83,7 +83,7 @@ const signInWithGoogle = () => {
 const handleCredentialResponse = async (response: any) => {
   try {
     await auth.signInWithGoogle(response.credential);
-    await router.push("/people");
+    await router.push("/dashboard");
   } catch (err) {
     if (err instanceof Error) {
       error.value = err.message;
