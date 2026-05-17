@@ -95,9 +95,8 @@ onMounted(() => {
   }
 });
 
-watch(themeSwitch, (value) => {
-  console.log(value);
-  theme.value = value ? 'light' : 'dark';
+watch(themeSwitch, (value) => { 
+  theme.value = value ? 'dark' : 'light' ;
   localStorage.setItem('theme', value);
 });
 
