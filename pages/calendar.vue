@@ -108,13 +108,13 @@
               </div>
             </div>
             <p class="mt-4 text-sm leading-6 text-slate-700">{{ event.description || event.announcement || 'No description provided.' }}</p>
-            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <!--div class="mt-4 grid gap-3 sm:grid-cols-2">
               <div class="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
                 <span class="font-semibold text-slate-900">Location:</span> {{ event.churchlocationId || 'Standard venue' }}
               </div>
               <div class="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
                 <span class="font-semibold text-slate-900">Scope:</span> {{ event.eventScope || 'N/A' }}</div>
-            </div>
+            </div-->
           </div>
         </div>
       </article>
