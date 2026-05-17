@@ -5,16 +5,19 @@
       <kpi_chart
           :title="'Membership CAT 1'" 
           :srcData="data_cat1"
+          :loading="loadingMembership"
           >
       </kpi_chart> 
       <kpi_chart
           :title="'Membership CAT 2'" 
           :srcData="data_cat2"
+          :loading="loadingMembership"
           >
       </kpi_chart>
       <kpi_chart
           :title="'Attendance'" 
           :srcData="data_att"
+          :loading="loadingMembership"
           >
       </kpi_chart> 
     </div> 

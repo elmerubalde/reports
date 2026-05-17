@@ -46,6 +46,7 @@ export const useAuth = () => {
     if (process.client) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
     }
+ 
   };
 
   const clearStorage = () => {
@@ -118,6 +119,9 @@ export const useAuth = () => {
     auth,
     token,
     isLoggedIn: computed(() => !!token.value),
+    userId: computed(() => auth.value?.id || null),
+    churchGroupId: computed(() => auth.value?.churchGroupId || null),
+    tribeId: computed(() => auth.value?.tribeId || null),
     signIn,
     signInWithGoogle,
     signOut,

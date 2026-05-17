@@ -13,6 +13,7 @@
     "@azure/identity": "^4.7.0",
     "@azure/storage-blob": "^12.26.0",
     "@sendgrid/mail": "^8.1.6",
+    "@vueform/toggle": "^2.1.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "chart.js": "^4.5.1",

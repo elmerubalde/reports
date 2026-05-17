@@ -1,4 +1,5 @@
 <template>
+<div class="spinner" id="spinner" v-if="loading" ></div>
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
     <h2 class="text-lg font-semibold text-slate-900 mb-4">{{ title }}</h2>
     <p class="text-sm text-slate-900" >
@@ -10,7 +11,8 @@
     <p class="text-sm text-slate-900" >
       <span class="dot" :style="{ 'background-color': '#5eee10'  }" />Actual vs Prev Actual {{ yearKpi }} : {{ pctActualVsPrevious }}% </p>               
     
-    <div class="relative h-64" v-if="data.datasets">
+    
+    <div class="relative h-64" v-if="data.datasets"> 
         <Bar :data="data" :options="options" />
     </div>
     
@@ -73,6 +75,26 @@
     border-radius: 50%;
     display: inline-block;
   }
+
+  .spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+    position: absolute;
+    left: 50%;
+    margin-top: -20px; 
+    margin-left: -20px;
+    display: none;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
 </style>
 
 <script lang="ts" setup>
@@ -132,7 +154,8 @@ interface IData {
 
 const props =  defineProps({
   title: String,
-  srcData: Object as IData
+  srcData: Object as IData,
+  loading: { type: Boolean,  default: true } 
 })
 
 const data = ref<IData>({});
@@ -155,7 +178,6 @@ const yearKpiAccomplished = ref(0);
 const prevYearKpiAccomplished = ref(0);
 const pctTargetVsActual = ref(0);
 const pctActualVsPrevious = ref(0);
-const loadingMembership = ref(false);
 const errorMessage = ref('');
 
 const calculateTarget = async () => {
@@ -170,7 +192,6 @@ const calculateTarget = async () => {
 }; 
  
 const calculate = async (newData: IData) => {
-  console.log(newData); 
   bgColour1.value = newData.datasets[0].backgroundColor ;
   bgColour2.value = newData.datasets[1].backgroundColor ;
   yearKpi.value = newData.labels.length > 0 ? newData.labels.at(-1) : '' ;

@@ -1,11 +1,19 @@
 <template>
   <main class="mx-auto max-w-7xl px-4 py-1 sm:px-6">
-    <section class="mb-6 rounded-3xl bg-white p-4 shadow-sm">
+    <section class="mt-8 mb-6 rounded-3xl bg-white p-4 shadow-sm">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 class="text-3xl font-semibold text-slate-900">Church Event Calendar</h1>
-        </div>
-        <div class="flex flex-wrap items-center gap-3">
+          <h2 class="text-2xl font-semibold text-slate-900">Church Event Calendar</h2>
+        </div> 
+      </div>
+
+      <div class="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm uppercase tracking-[0.24em] text-slate-500">Month</p>
+            <h2 class="text-2xl font-semibold text-slate-900">{{ monthLabel }}</h2>
+          </div>
+                  <div class="flex flex-wrap items-center gap-3">
           <button
             type="button"
             @click="openCreateModal"
@@ -28,14 +36,6 @@
             Next
           </button>
         </div>
-      </div>
-
-      <div class="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p class="text-sm uppercase tracking-[0.24em] text-slate-500">Month</p>
-            <h2 class="text-2xl font-semibold text-slate-900">{{ monthLabel }}</h2>
-          </div>
           <div class="text-sm text-slate-500">
             {{ events.length }} event<span v-if="events.length !== 1">s</span> in this view
           </div>
@@ -157,23 +157,7 @@
             <label class="block text-sm text-slate-700">
               <span class="mb-2 block font-medium">Event Name</span>
               <input v-model="eventForm.name" type="text" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100" />
-            </label>
-            <label class="block text-sm text-slate-700">
-              <span class="mb-2 block font-medium">Event Type</span>
-              <input v-model="eventForm.eventType" type="text" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100" />
-            </label>
-            <label class="block text-sm text-slate-700">
-              <span class="mb-2 block font-medium">Event Scope</span>
-              <select v-model="eventForm.eventScope" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
-                <option v-for="scope in eventScopes" :key="scope" :value="scope">{{ scope }}</option>
-              </select>
-            </label>
-            <label class="block text-sm text-slate-700">
-              <span class="mb-2 block font-medium">Location</span>
-              <select v-model.number="eventForm.churchlocationId" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
-                <option v-for="location in locations" :key="location.id" :value="location.id">{{ location.name }}</option>
-              </select>
-            </label>
+            </label> 
             <label class="block text-sm text-slate-700">
               <span class="mb-2 block font-medium">Event Date</span>
               <input v-model="eventForm.eventDate" type="date" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100" />
@@ -186,10 +170,10 @@
               <span class="mb-2 block font-medium">Duration</span>
               <input v-model="eventForm.duration" type="text" placeholder="e.g. 90 mins" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100" />
             </label>
-            <label class="block text-sm text-slate-700">
+            <!--label class="block text-sm text-slate-700">
               <span class="mb-2 block font-medium">Church Group ID</span>
               <input v-model.number="eventForm.churchGroupId" type="number" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100" />
-            </label>
+            </label-->
           </div>
 
           <label class="block text-sm text-slate-700">
@@ -275,14 +259,15 @@ const eventForm = ref({
   eventDate: formatDate(selectedDate.value),
   startAt: '',
   duration: '',
-  eventScope: 'ECO',
+  eventScope: 'LOCAL',
   description: '',
-  churchGroupId: 1,
-  tribeId: 0,
+  churchGroupId: auth.churchGroupId.value,
+  tribeId: auth.tribeId.value,
   churchlocationId: 0,
   announcement: '',
   message: '',
   locked: false,
+  hasRegistration: false
 });
 
 const selectedDayLabel = computed(() => {
@@ -308,9 +293,11 @@ const fetchEvents = async () => {
   try {
     const start = formatDate(startOfMonth.value);
     const end = formatDate(endOfMonth.value);
-    events.value = await auth.apiFetch(`/api/churchevents/range/${start}/${end}`);
+    events.value = await auth.apiFetch(`/api/churchevents/range/${start}/${end}/${auth.churchGroupId.value}${ auth.tribeId.value ? '/' + auth.tribeId.value : '' }`);
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Could not load events.';
+    if (err?.data?.message) {
+      error.value = `Error: ${err.data.message}`
+    }
   } finally {
     loading.value = false;
   }
@@ -368,14 +355,14 @@ const openCreateModal = () => {
     eventDate: formatDate(selectedDate.value),
     startAt: '',
     duration: '',
-    eventScope: 'ECO',
-    description: '',
-    churchGroupId: 1,
-    tribeId: 0,
-    churchlocationId: 0,
+    eventScope: 'LOCAL',
+    description: '', 
+    churchGroupId: auth.churchGroupId.value,
+    tribeId: auth.tribeId.value,
     announcement: '',
     message: '',
     locked: false,
+    hasRegistration: true
   };
   showCreateModal.value = true;
 };
@@ -405,6 +392,7 @@ const submitEvent = async () => {
     createSuccess.value = 'Event registered successfully.';
     showCreateModal.value = false;
     await fetchEvents();
+    closeCreateModal();
   } catch (err) {
     createError.value = err instanceof Error ? err.message : 'Unable to register event.';
   }
@@ -421,8 +409,10 @@ const nextMonth = () => {
 onMounted(async () => {
   if (auth.isLoggedIn.value) {
     await fetchEvents();
+  } else {
+    return navigateTo('/login')
   }
-});
+}); 
 
 watch([selectedDate, auth.isLoggedIn], async () => {
   if (auth.isLoggedIn.value) {
