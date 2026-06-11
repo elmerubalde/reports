@@ -138,7 +138,7 @@ const handleCredentialResponse = async (response: any) => {
   console.log(response)
   try {
     await auth.signInWithGoogle(response.credential);
-    await router.push("/summary");
+    await router.push("/dashboard");
   } catch (err) {
     if (err instanceof Error) {
       error.value = err.message;
