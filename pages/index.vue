@@ -1,6 +1,11 @@
 <template>
   <main class="page-container">
-     
+    <section class="default.page">
+      <div >
+        <img v-if="theme !== 'dark'"  style="height:40px" src="/assets/img/jil-logo-light.png"> 
+        <img v-if="theme === 'dark'" style="height:40px" src="/assets/img/jil-logo-dark.png"> 
+      </div> 
+    </section>
   </main>
 </template>
 
@@ -23,6 +28,15 @@ onMounted(() => {
   margin: 2rem auto;
   padding: 0 1rem;
   font-family: system-ui, sans-serif;
+}
+
+.default-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #f4f7fb;
 }
 
 h1 {

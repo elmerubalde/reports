@@ -58,7 +58,7 @@ export const useAuth = () => {
   };
 
   const signIn = async (username: string, password: string) => {
-    const data = await $fetch<AuthUser>(`${config.public.apiBase}/api/auth/signin`, {
+    const data = await $fetch<AuthUser>(`${config.public.apiBase}/api/auth/signin/`, {
       method: "POST",
       body: { username, password }
     });
@@ -67,7 +67,7 @@ export const useAuth = () => {
   };
 
   const signInWithGoogle = async (googleToken: string) => {
-    const data = await $fetch<AuthUser>(`${config.public.apiBase}/api/googleauth/signin`, {
+    const data = await $fetch<AuthUser>(`${config.public.apiBase}/api/googleauth/signin/`, {
       method: "POST",
       body: { token: googleToken }
     });
