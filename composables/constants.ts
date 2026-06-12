@@ -1,5 +1,5 @@
 export const CHURCHGROUPS = [
-      { id: 0, name: 'ALL'},
+      { id: 0, name: 'ECO'},
       { id: 56, name: 'AJAX' },
       { id: 55, name: 'ARUBA' },
       { id: 51, name: 'Barrie' },

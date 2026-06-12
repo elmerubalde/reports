@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen p-6">
     <!-- Filters -->
-    <div class="flex flex-wrap items-end gap-4 mb-6">
+    <div class="flex flex-wrap items-end gap-4 mb-6 mt-8">
       <div class="flex flex-col gap-1">
         <label class="text-xs font-medium text-slate-600">Fiscal Year</label>
         <input
