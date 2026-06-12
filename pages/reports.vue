@@ -75,6 +75,29 @@
         </tbody>
       </table>
     </div>
+
+      <!-- Monthly Pivot Table -->
+      <div class="mt-6 p-4 border rounded bg-gray-50">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-semibold text-slate-800">Prayer Meeting Monthly Attendance (Average)</h3>
+        </div>
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="border p-2 text-left">Category</th>
+              <th v-for="month in monthHeaders" :key="month" class="border p-2 text-left">{{ month }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="category in categories" :key="category" class="border-b">
+              <td class="border p-2 text-left">{{ category }}</td>
+              <td v-for="month in monthHeaders" :key="month + '-' + category" class="border p-2 text-left">
+                {{ getMonthlyAvg(category, month) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
   </div>
 </template>
 
@@ -102,8 +125,6 @@ const fetchData = async () => {
     const beginYear = endYear.value - 1
     const url = `/api/report/ecoprayerattendancebydate/weekly/${beginYear}-09-01/${endYear.value}-09-01/${selectedChurchGroupId.value}`;
     data_prayer.value = await auth.apiFetch(url);
-
-    console.log(monthlyAvg.value);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
   } finally {
@@ -162,7 +183,7 @@ const monthlyAvg = computed(() => {
     .map(([month, data]) => {
       const avg: Record<string, number> = {};
       categories.value.forEach(cat => {
-        avg[cat] = data.count ? data.sums[cat] / data.count : 0;
+        avg[cat] = data.count ? data.sums[cat] /  ( 4 < data.count ? data.count : 4) : 0;
       });
       return { month, ...avg };
     });
