@@ -80,6 +80,19 @@
       <div class="mt-6 p-4 border rounded bg-gray-50">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-sm font-semibold text-slate-800">Prayer Meeting Monthly Attendance (Average)</h3>
+          <button
+            @click="copyMonthlyTableToClipboard"
+            :title="copiedMonthly ? 'Copied!' : 'Copy to clipboard'"
+            class="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-slate-800 hover:bg-gray-200 rounded transition-colors"
+          >
+            <svg v-if="!copiedMonthly" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ copiedMonthly ? 'Copied!' : 'Copy' }}
+          </button>
         </div>
         <table class="w-full border-collapse">
           <thead>
@@ -210,6 +223,7 @@ function getMonthlyAvg(category: string, month: string): string {
 }
 
 const copied = ref(false);
+const copiedMonthly = ref(false);
 
 function copyTableToClipboard() {
   const header = ['Category', ...dates.value].join('\t');
@@ -219,5 +233,15 @@ function copyTableToClipboard() {
   navigator.clipboard.writeText([header, ...rows].join('\n'));
   copied.value = true;
   setTimeout(() => { copied.value = false; }, 2000);
+}
+
+function copyMonthlyTableToClipboard() {
+  const header = ['Category', ...monthHeaders.value].join('\t');
+  const rows = categories.value.map(cat =>
+    [cat, ...monthHeaders.value.map(m => getMonthlyAvg(cat, m))].join('\t')
+  );
+  navigator.clipboard.writeText([header, ...rows].join('\n'));
+  copiedMonthly.value = true;
+  setTimeout(() => { copiedMonthly.value = false; }, 2000);
 }
 </script>
