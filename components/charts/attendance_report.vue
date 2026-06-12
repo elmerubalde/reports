@@ -5,7 +5,7 @@
 
     <div class="flex gap-6 text-sm text-slate-700 mb-4">
       <span><strong>Latest Week:</strong> {{ latestDate }}</span>
-      <span><strong>Total:</strong> {{ latestTotal }}</span>
+      <span><strong>Total Gathering:</strong> {{ latestTotal }}</span>
     </div>
 
     <div class="relative h-72" v-if="chartData.datasets && chartData.datasets.length > 0">

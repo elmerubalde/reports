@@ -81,7 +81,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue'
 import attendance_report from '../components/charts/attendance_report.vue'
-import { useAuth } from '~/composables/useAuth';
+import { useAuth } from '../composables/useAuth';
 import { CHURCHGROUPS } from '../composables/constants';
 
 const auth = useAuth();
@@ -102,6 +102,8 @@ const fetchData = async () => {
     const beginYear = endYear.value - 1
     const url = `/api/report/ecoprayerattendancebydate/weekly/${beginYear}-09-01/${endYear.value}-09-01/${selectedChurchGroupId.value}`;
     data_prayer.value = await auth.apiFetch(url);
+
+    console.log(monthlyAvg.value);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
   } finally {
@@ -121,7 +123,7 @@ const dates = computed(() => {
   return Array.from(set).sort();
 });
 
-const categories = computed(() => {  
+const categories = computed(() => {
   return ['Senior Men',
     'Senior Women',
     'Adult Men',
@@ -135,11 +137,55 @@ const categories = computed(() => {
     'Total'];
 });
 
+/**
+ * Monthly averages derived from weekly data_prayer.
+ * Returns an array where each element represents a month (e.g., "2025-01")
+ * and contains the average value for every category.
+ */
+const monthlyAvg = computed(() => {
+  const groups: Record<string, { count: number; sums: Record<string, number> }> = {};
+  data_prayer.value.forEach(item => {
+    const d = new Date(item.DateAt);
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!groups[monthKey]) {
+      groups[monthKey] = { count: 0, sums: {} };
+    }
+    groups[monthKey].count++;
+    categories.value.forEach(cat => {
+      const val = Number(item[cat] ?? 0);
+      groups[monthKey].sums[cat] = (groups[monthKey].sums[cat] ?? 0) + val;
+    });
+  });
+  // Transform into an ordered array with averages
+  return Object.entries(groups)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, data]) => {
+      const avg: Record<string, number> = {};
+      categories.value.forEach(cat => {
+        avg[cat] = data.count ? data.sums[cat] / data.count : 0;
+      });
+      return { month, ...avg };
+    });
+});
+
+// Helper for month headers
+const monthHeaders = computed(() => monthlyAvg.value.map(m => m.month));
+
 function getPivotValue(category: string, date: string): string {
   const record = data_prayer.value?.find(item => item.DateAt === date);
   if (!record) return '0';
   const val = record[category];
   return val !== undefined ? String(val) : '0';
+}
+
+/**
+ * Retrieve the average value for a given category and month.
+ */
+function getMonthlyAvg(category: string, month: string): string {
+  const rec = monthlyAvg.value.find(m => m.month === month);
+  if (!rec) return '0';
+  const val = rec[category];
+  return val !== undefined ? val.toFixed(2) : '0';
 }
 
 const copied = ref(false);
