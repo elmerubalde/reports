@@ -131,7 +131,8 @@ const categories = computed(() => {
     'CYN Male',
     'CYN Female',
     'Children Male',
-    'Children Female'];
+    'Children Female',
+    'Total'];
 });
 
 function getPivotValue(category: string, date: string): string {
