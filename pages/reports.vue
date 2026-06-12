@@ -3,16 +3,15 @@
     <!-- 3-Column Chart Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <attendance_report
-          :title="'Prayer Meeting Monthly Average Attendance'"
+          :title="'Prayer Meeting Weekly Attendance'"
           :srcData="data_prayer"
           :loading="loading"
-          >
-      </attendance_report>
+      />
     </div>
 
     <!--Dataset Pivot Table -->
     <div class="mt-6 p-4 border rounded bg-gray-50">
-      <h3 class="text-sm font-semibold text-slate-800 mb-2">{{ }} Prayer Weekly</h3>
+      <h3 class="text-sm font-semibold text-slate-800 mb-2">Prayer Weekly</h3>
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-gray-100">
@@ -32,57 +31,13 @@
     </div>
   </div>
 </template>
-<style scoped>
-  .dot {
-    height: 15px;
-    width: 15px;
-    background-color: #ec2323;
-    border-radius: 50%;
-    display: inline-block;
-  }
-</style>
+
 <script lang="ts" setup>
-import { ref, onMounted, computed, reactive } from 'vue'
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Colors,
-  ChartData
-} from 'chart.js'
-import ChartDataLabels from 'chartjs-plugin-datalabels'
+import { ref, onMounted, computed } from 'vue'
 import attendance_report from '../components/charts/attendance_report.vue'
 import { useAuth } from '~/composables/useAuth';
+
 const auth = useAuth();
-
-ChartJS.register(Colors, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ChartDataLabels)
-
-const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false
-    },
-    colors: {
-      forceOverride: false
-    },
-    datalabels: {
-      color: "#00aaaa",
-      anchor: "end",
-      align: "top",
-      offset: -6,
-      font: {
-        weight: "regular"
-      },
-      formatter: (value) => value // Show raw value
-    }
-  }
-}
 
 const loading = ref(false);
 const errorMessage = ref('');
@@ -91,14 +46,11 @@ const data_prayer = ref<Array<any>>([]);
 const fetchData = async (endDate: Date) => {
   loading.value = true;
   errorMessage.value = '';
-
   try {
-    const totalYears = 1;
     const endYear = endDate.getUTCFullYear();
-    const beginYear = endYear - totalYears;
+    const beginYear = endYear - 1;
     const url = `/api/report/ecoprayerattendancebydate/weekly/${beginYear}-01-01/${endDate.toISOString().substring(0, 10)}/12`;
-    data_prayer.value  = await auth.apiFetch(url);
-    console.log(data_prayer.value);
+    data_prayer.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
   } finally {
@@ -108,57 +60,26 @@ const fetchData = async (endDate: Date) => {
 
 onMounted(async () => {
   if (auth.isLoggedIn.value) {
-    let now = new Date();
-    await fetchData(now);
-  }  
+    await fetchData(new Date());
+  }
 });
 
-/**
- * Derive rows for the table based on the `Senior Men` and `Senior Women` fields.
- * Each record from `sampleDataset` yields two rows:
- *   - One for Senior Men
- *   - One for Senior Women
- *
- * The resulting rows contain all original fields plus a new `category`
- * identifier so the UI can display them appropriately.
- */
-interface DerivedRow {
-  category: 'Senior Men' | 'Senior Women'
-  YearWk: number
-  DateAt: string
-  [key: string]: any // allow other fields to be accessed dynamically
-}
-// Compute unique dates from the dataset
 const dates = computed(() => {
   const set = new Set<string>();
-  data_prayer.value.forEach(item => {
-    set.add(item.DateAt);
-  });
-  // Sort chronologically (ISO strings sort naturally)
+  data_prayer.value.forEach(item => set.add(item.DateAt));
   return Array.from(set).sort();
 });
 
-// Compute all categories (keys) excluding metadata fields
 const categories = computed(() => {
   if (data_prayer.value.length === 0) return [];
   const first = data_prayer.value[0] as Record<string, any>;
-  // Exclude YearWk and DateAt
   return Object.keys(first).filter(k => k !== 'YearWk' && k !== 'DateAt');
 });
 
-/**
- * Helper to retrieve a value for a given category and date.
- * Returns the value as a string (or 0 if not found).
- */
 function getPivotValue(category: string, date: string): string {
   const record = data_prayer.value?.find(item => item.DateAt === date);
   if (!record) return '0';
   const val = record[category];
-  // If the value is undefined, default to 0
   return val !== undefined ? String(val) : '0';
 }
-
-// The previously calculated derivedRows are no longer needed
-// (kept for reference only)
-
 </script>
