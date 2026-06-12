@@ -173,8 +173,8 @@ const dates = computed(() => {
 
 // Compute all categories (keys) excluding metadata fields
 const categories = computed(() => {
-  if (sampleDataset.length === 0) return [];
-  const first = sampleDataset[0] as Record<string, any>;
+  if (data_prayer.value.length === 0) return [];
+  const first = data_prayer.value[0] as Record<string, any>;
   // Exclude YearWk and DateAt
   return Object.keys(first).filter(k => k !== 'YearWk' && k !== 'DateAt');
 });
@@ -184,7 +184,7 @@ const categories = computed(() => {
  * Returns the value as a string (or 0 if not found).
  */
 function getPivotValue(category: string, date: string): string {
-  const record = sampleDataset.find(item => item.DateAt === date);
+  const record = data_prayer.value?.find(item => item.DateAt === date);
   if (!record) return '0';
   const val = record[category];
   // If the value is undefined, default to 0
