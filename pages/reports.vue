@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen p-6">
-    <!-- 3-Column Chart Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Stacked Column Chart Grid -->
+    <div class="grid grid-cols-1 gap-6 mb-8">
       <attendance_report
           :title="'Prayer Meeting Weekly Attendance'"
           :srcData="data_prayer"
@@ -11,7 +11,7 @@
 
     <!--Dataset Pivot Table -->
     <div class="mt-6 p-4 border rounded bg-gray-50">
-      <h3 class="text-sm font-semibold text-slate-800 mb-2">Prayer Weekly</h3>
+      <h3 class="text-sm font-semibold text-slate-800 mb-2">Prayer Meeting Weekly Attendance</h3>
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-gray-100">
