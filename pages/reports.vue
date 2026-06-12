@@ -10,9 +10,9 @@
       </attendance_report>
     </div>
 
-    <!-- Sample Dataset Pivot Table -->
+    <!--Dataset Pivot Table -->
     <div class="mt-6 p-4 border rounded bg-gray-50">
-      <h3 class="text-sm font-semibold text-slate-800 mb-2">Sample Pivot Table</h3>
+      <h3 class="text-sm font-semibold text-slate-800 mb-2">{{ }} Prayer Weekly</h3>
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-gray-100">
@@ -56,8 +56,6 @@ import {
 } from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import attendance_report from '../components/charts/attendance_report.vue'
-import { Bar } from 'vue-chartjs'
-import * as chartConfig from '../composables/chartConfig'
 import { useAuth } from '~/composables/useAuth';
 const auth = useAuth();
 
@@ -89,38 +87,7 @@ const options = {
 const loading = ref(false);
 const errorMessage = ref('');
 const data_prayer = ref<Array<any>>([]);
-const sampleDataset = reactive([
-  {
-    YearWk: 202501,
-    DateAt: "2025-01-10",
-    "Senior Men": "0",
-    "Adult Men": "8",
-    "Yan Men": "1",
-    "CYN Male": "7",
-    "Children Male": "4",
-    "Senior Women": "2",
-    "Adult Women": "10",
-    "Yan Women": "1",
-    "CYN Female": "6",
-    "Children Female": "7",
-    Total: 46
-  },
-  {
-    YearWk: 202502,
-    DateAt: "2025-01-17",
-    "Senior Men": "0",
-    "Adult Men": "8",
-    "Yan Men": "1",
-    "CYN Male": "7",
-    "Children Male": "4",
-    "Senior Women": "2",
-    "Adult Women": "10",
-    "Yan Women": "1",
-    "CYN Female": "6",
-    "Children Female": "7",
-    Total: 46
-  }
-]);
+
 const fetchData = async (endDate: Date) => {
   loading.value = true;
   errorMessage.value = '';
@@ -140,10 +107,10 @@ const fetchData = async (endDate: Date) => {
 };
 
 onMounted(async () => {
-  //if (auth.isLoggedIn.value) {
+  if (auth.isLoggedIn.value) {
     let now = new Date();
     await fetchData(now);
-  //
+  }  
 });
 
 /**
@@ -164,7 +131,7 @@ interface DerivedRow {
 // Compute unique dates from the dataset
 const dates = computed(() => {
   const set = new Set<string>();
-  sampleDataset.forEach(item => {
+  data_prayer.value.forEach(item => {
     set.add(item.DateAt);
   });
   // Sort chronologically (ISO strings sort naturally)
