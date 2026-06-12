@@ -1,14 +1,3 @@
-<script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
-import { useAuth } from '~/composables/useAuth'
-import ecobarchart  from '~/components/charts/ecobarchart.vue'
-import membernetworkdistribution from '~/components/charts/membernetworkdistribution.vue'
-import memberattendance from '~/components/charts/memberattendance.vue'
-import lgmemberattendance from '~/components/charts/lgmemberattendance.vue'
-import perlgmemberattendance from '~/components/charts/perlgmemberattendance.vue'
-const auth = useAuth()
-</script>
-
 <template>
   <div class="min-h-screen p-6">
     <!-- Header -->
@@ -39,15 +28,25 @@ const auth = useAuth()
   </div>
 </template>
 
-<script lang="ts">
-  export default { 
-    name: 'dashboard',
-    components : { perlgmemberattendance, membernetworkdistribution, memberattendance },
-    setup() {
-       
-    }, 
-}
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth } from '../composables/useAuth'
+import ecobarchart  from '../components/charts/ecobarchart.vue'
+import membernetworkdistribution from '../components/charts/membernetworkdistribution.vue'
+import memberattendance from '../components/charts/memberattendance.vue'
+import lgmemberattendance from '../components/charts/lgmemberattendance.vue'
+import perlgmemberattendance from '../components/charts/perlgmemberattendance.vue' 
+
+
+const auth = useAuth();
+const error = ref("");
+const router = useRouter();
+
+onMounted(() => { 
+});
 </script>
+
 
 <style scoped>
 .grid {

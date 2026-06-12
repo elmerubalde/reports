@@ -21,10 +21,10 @@
       </button>
         <button v-if="isLoggedIn"
         type="button"
-        @click="navCalendar"
+        @click="navReports"
         class="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
       >
-        {{ 'Calendar' }}
+        {{ 'Reports' }}
       </button>
       <button v-if="!isLoggedIn"
         type="button"
@@ -82,8 +82,8 @@ const navLogin = async () => {
   await router.push("/login");
 }
 
-const navCalendar = async () => {   
-  await router.push("/calendar");
+const navReports = async () => {   
+  await router.push("/reports");
 }
 
 onMounted(() => {
