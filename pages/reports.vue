@@ -77,7 +77,7 @@
         <table class="min-w-max border-collapse text-xs text-slate-700 dark:text-slate-200">
           <thead>
             <tr class="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-              <th class="sticky left-0 top-0 z-20 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">Netowork</th>
+              <th class="sticky left-0 top-0 z-20 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">Network</th>
               <th v-for="date in dates" :key="date" class="sticky top-0 z-10 border border-slate-200 p-1 text-left bg-slate-100 dark:border-slate-700 dark:bg-slate-800">{{ date }}</th>
             </tr>
           </thead>
@@ -124,6 +124,45 @@
             <tr v-for="church in churchNames" :key="church" class="border-b">
               <td class="sticky left-0 z-10 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">{{ church }}</td>
               <td v-for="date in churchDates" :key="date + '-' + church" class="border border-slate-200 p-1 text-left dark:border-slate-700">{{ getChurchTotal(church, date) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Church Monthly Attendance Table -->
+    <div class="mt-6 p-4 border border-slate-200 rounded-3xl bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType }} Monthly Attendance By Church (Average) </h3>
+        <button
+          @click="copyChurchMonthlyTableToClipboard"
+          :title="copiedChurchMonthly ? 'Copied!' : 'Copy to clipboard'"
+          class="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-slate-900 hover:bg-slate-200 rounded transition-colors dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800"
+        >
+          <svg v-if="!copiedChurchMonthly" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          {{ copiedChurchMonthly ? 'Copied!' : 'Copy' }}
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-max border-collapse text-xs text-slate-700 dark:text-slate-200">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <th class="sticky left-0 top-0 z-20 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">Church</th>
+              <th v-for="month in churchMonthHeaders" :key="month" class="sticky top-0 z-10 border border-slate-200 p-1 text-left bg-slate-100 dark:border-slate-700 dark:bg-slate-800">{{ month }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!churchNames.length">
+              <td class="border p-1 text-left" :colspan="churchMonthHeaders.length + 1">No church attendance data available.</td>
+            </tr>
+            <tr v-for="church in churchNames" :key="church" class="border-b">
+              <td class="sticky left-0 z-10 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">{{ church }}</td>
+              <td v-for="month in churchMonthHeaders" :key="month + '-' + church" class="border border-slate-200 p-1 text-left dark:border-slate-700">{{ getChurchMonthTotal(church, month) }}</td>
             </tr>
           </tbody>
         </table>
@@ -262,6 +301,16 @@ const churchNames = computed(() => {
   return Array.from(set);
 });
 
+const churchMonthHeaders = computed(() => {
+  const set = new Set<string>();
+  data_prayer_bychurch.value.forEach(item => {
+    const d = new Date(item.DateAt);
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    set.add(monthKey);
+  });
+  return Array.from(set).sort();
+});
+
 function getChurchTotal(churchName: string, date: string): string {
   const record = data_prayer_bychurch.value?.find(item => item.churchName === churchName && item.DateAt === date);
   if (!record) return '';
@@ -269,11 +318,21 @@ function getChurchTotal(churchName: string, date: string): string {
   return total !== 0 ? String(total) : '';
 }
 
+function getChurchMonthTotal(churchName: string, month: string): string {
+  const records = data_prayer_bychurch.value.filter(item => {
+    const d = new Date(item.DateAt);
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    return item.churchName === churchName && monthKey === month;
+  });
+  if (records.length === 0) return '';
+  const sum = records.reduce((total, record) => total + Number(record.Total ?? 0), 0);
+  const avg = sum / records.length;
+  return avg !== 0 ? avg.toFixed(2) : '';
+}
+
 type MonthlyAverageRecord = {
   month: string;
 } & Record<string, number>;
-
-const copiedChurch = ref(false);
 
 /**
  * Monthly averages derived from weekly data_prayer.
@@ -327,6 +386,8 @@ function getMonthlyAvg(category: string, month: string): string {
 }
 
 const copied = ref(false);
+const copiedChurch = ref(false);
+const copiedChurchMonthly = ref(false);
 const copiedMonthly = ref(false);
 
 function copyTableToClipboard() {
@@ -347,6 +408,16 @@ function copyChurchTableToClipboard() {
   navigator.clipboard.writeText([header, ...rows].join('\n'));
   copiedChurch.value = true;
   setTimeout(() => { copiedChurch.value = false; }, 2000);
+}
+
+function copyChurchMonthlyTableToClipboard() {
+  const header = ['Church', ...churchMonthHeaders.value].join('\t');
+  const rows = churchNames.value.map(church =>
+    [church, ...churchMonthHeaders.value.map(month => getChurchMonthTotal(church, month))].join('\t')
+  );
+  navigator.clipboard.writeText([header, ...rows].join('\n'));
+  copiedChurchMonthly.value = true;
+  setTimeout(() => { copiedChurchMonthly.value = false; }, 2000);
 }
 
 function copyMonthlyTableToClipboard() {
