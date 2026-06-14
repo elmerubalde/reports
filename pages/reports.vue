@@ -183,34 +183,31 @@ const data_prayer = ref<Array<any>>([]);
 const data_prayer_bychurch = ref<Array<any>>([]);
 
 const fetchData = async () => {
+  loading.value = true;
   errorMessage.value = '';
-  await fetchByNetworkData()
-  await fetchByChurchData()
+  try {
+    await fetchByNetworkData()
+    await fetchByChurchData()
+  } finally {
+    loading.value = false;
+  }
 }
 
 const fetchByNetworkData = async () => {
-  loading.value = true;
-  errorMessage.value = '';
   try {
     const url = `/api/report/ecoprayerattendancebydate/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}`;
     data_prayer.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
-  } finally {
-    loading.value = false;
   }
 };
 
 const fetchByChurchData = async () => {
-  loading.value = true;
-  errorMessage.value = '';
   try {
     const url = `/api/report/ecoprayerattendancebychurch/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}`;
     data_prayer_bychurch.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
-  } finally {
-    loading.value = false;
   }
 };
 
