@@ -27,15 +27,15 @@
           <option v-for="cg in CHURCHGROUPS" :key="cg.id" :value="cg.id">{{ cg.name }}</option>
         </select>
       </div>
-      <!--div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1">
         <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Event Type</label>
         <select
           v-model="selectedEventType"
           class="border border-slate-300 bg-white text-slate-900 rounded px-3 py-1.5 text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         >
-          <option v-for="type in eventTypes" :key="type" :value="type">{{ type }}</option>
+          <option v-for="type in eventTypes" :key="type.id" :value="type">{{ type.name }}</option>
         </select>
-      </div-->
+      </div>
       <button
         @click="fetchData"
         :disabled="loading"
@@ -49,7 +49,7 @@
     <!-- Stacked Column Chart Grid -->
     <div class="grid grid-cols-1 gap-6 mb-8">
       <attendance_report
-          :title="'Prayer Meeting Weekly Attendance'"
+          :title="selectedEventType.name + ' Weekly Attendance'"
           :srcData="data_prayer"
           :loading="loading"
       />
@@ -58,7 +58,7 @@
     <!--Dataset Pivot Table -->
     <div class="mt-6 p-4 border border-slate-200 rounded-3xl bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType }} Weekly Attendance By Network</h3>
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType.name }} Weekly Attendance By Network</h3>
         <button
           @click="copyTableToClipboard"
           :title="copied ? 'Copied!' : 'Copy to clipboard'"
@@ -94,7 +94,7 @@
     <!-- Church Weekly Attendance Table -->
     <div class="mt-6 p-4 border border-slate-200 rounded-3xl bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType }} Weekly Attendance by Church</h3>
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType.name }} Weekly Attendance by Church</h3>
         <button
           @click="copyChurchTableToClipboard"
           :title="copiedChurch ? 'Copied!' : 'Copy to clipboard'"
@@ -133,7 +133,7 @@
     <!-- Church Monthly Attendance Table -->
     <div class="mt-6 p-4 border border-slate-200 rounded-3xl bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType }} Monthly Attendance By Church (Average) </h3>
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType.name }} Monthly Attendance By Church (Average) </h3>
         <button
           @click="copyChurchMonthlyTableToClipboard"
           :title="copiedChurchMonthly ? 'Copied!' : 'Copy to clipboard'"
@@ -172,7 +172,7 @@
       <!-- Monthly Pivot Table -->
       <div class="mt-6 p-4 border border-slate-200 rounded-3xl bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType }} Monthly Attendance (Average)</h3>
+          <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType.name }} Monthly Attendance (Average)</h3>
           <button
             @click="copyMonthlyTableToClipboard"
             :title="copiedMonthly ? 'Copied!' : 'Copy to clipboard'"
@@ -223,7 +223,12 @@ const formatDate = (date: Date) => {
 const beginDate = ref(formatDate(new Date(now.getFullYear() - 1, 8, 1)));
 const endDate = ref(formatDate(now));
 const selectedChurchGroupId = ref(0);
-const eventTypes = ['Prayer Meeting', 'WHS', 'PRM', 'LG'];
+const eventTypes = [
+  { id:'pm' , name:'Prayer Meeting'}, 
+  { id:'whs' , name:'WHS'}, 
+  { id:'prm' , name:'PRM' }, 
+  { id:'lg' , name:'LG' }];
+
 const selectedEventType = ref(eventTypes[0]);
 
 const loading = ref(false);
@@ -245,8 +250,7 @@ const fetchData = async () => {
 
 const fetchByNetworkData = async () => {
   try {
-    const eventQuery = selectedEventType.value ? `?eventType=${encodeURIComponent(selectedEventType.value)}` : '';
-    const url = `/api/report/ecoprayerattendancebydate/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}${eventQuery}`;
+    const url = `/api/report/eco/${selectedEventType.value.id}/network/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}`;
     data_prayer.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
@@ -255,8 +259,7 @@ const fetchByNetworkData = async () => {
 
 const fetchByChurchData = async () => {
   try {
-    const eventQuery = selectedEventType.value ? `?eventType=${encodeURIComponent(selectedEventType.value)}` : '';
-    const url = `/api/report/ecoprayerattendancebychurch/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}${eventQuery}`;
+    const url = `/api/report/eco/${selectedEventType.value.id}/church/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}`;
     data_prayer_bychurch.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
