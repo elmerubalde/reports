@@ -31,6 +31,7 @@
         <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Event Type</label>
         <select
           v-model="selectedEventType"
+          @change="fetchData"
           class="border border-slate-300 bg-white text-slate-900 rounded px-3 py-1.5 text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         >
           <option v-for="type in eventTypes" :key="type.id" :value="type">{{ type.name }}</option>
@@ -236,11 +237,13 @@ const errorMessage = ref('');
 
 const data_prayer = ref<Array<any>>([]);
 const data_prayer_bychurch = ref<Array<any>>([]);
+const newEventTypeName = ref('Prayer Meeting')
 
 const fetchData = async () => {
   loading.value = true;
   errorMessage.value = '';
   try {
+    newEventTypeName.value = selectedEventType.value.name
     await fetchByNetworkData()
     await fetchByChurchData()
   } finally {
