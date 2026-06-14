@@ -27,6 +27,15 @@
           <option v-for="cg in CHURCHGROUPS" :key="cg.id" :value="cg.id">{{ cg.name }}</option>
         </select>
       </div>
+      <!--div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Event Type</label>
+        <select
+          v-model="selectedEventType"
+          class="border border-slate-300 bg-white text-slate-900 rounded px-3 py-1.5 text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        >
+          <option v-for="type in eventTypes" :key="type" :value="type">{{ type }}</option>
+        </select>
+      </div-->
       <button
         @click="fetchData"
         :disabled="loading"
@@ -49,7 +58,7 @@
     <!--Dataset Pivot Table -->
     <div class="mt-6 p-4 border border-slate-200 rounded-3xl bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Prayer Meeting Weekly Attendance</h3>
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType }} Weekly Attendance By Network</h3>
         <button
           @click="copyTableToClipboard"
           :title="copied ? 'Copied!' : 'Copy to clipboard'"
@@ -68,7 +77,7 @@
         <table class="min-w-max border-collapse text-xs text-slate-700 dark:text-slate-200">
           <thead>
             <tr class="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-              <th class="sticky left-0 top-0 z-20 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">Category</th>
+              <th class="sticky left-0 top-0 z-20 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">Netowork</th>
               <th v-for="date in dates" :key="date" class="sticky top-0 z-10 border border-slate-200 p-1 text-left bg-slate-100 dark:border-slate-700 dark:bg-slate-800">{{ date }}</th>
             </tr>
           </thead>
@@ -85,7 +94,7 @@
     <!-- Church Weekly Attendance Table -->
     <div class="mt-6 p-4 border border-slate-200 rounded-3xl bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Prayer Meeting Weekly Attendance by Church</h3>
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType }} Weekly Attendance by Church</h3>
         <button
           @click="copyChurchTableToClipboard"
           :title="copiedChurch ? 'Copied!' : 'Copy to clipboard'"
@@ -124,7 +133,7 @@
       <!-- Monthly Pivot Table -->
       <div class="mt-6 p-4 border border-slate-200 rounded-3xl bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Prayer Meeting Monthly Attendance (Average)</h3>
+          <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ selectedEventType }} Monthly Attendance (Average)</h3>
           <button
             @click="copyMonthlyTableToClipboard"
             :title="copiedMonthly ? 'Copied!' : 'Copy to clipboard'"
@@ -143,7 +152,7 @@
           <table class="min-w-max border-collapse text-xs text-slate-700 dark:text-slate-200">
             <thead>
               <tr class="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                <th class="sticky left-0 top-0 z-20 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">Category</th>
+                <th class="sticky left-0 top-0 z-20 border border-slate-200 bg-white/95 p-1 text-left dark:border-slate-700 dark:bg-slate-900/95">Network</th>
                 <th v-for="month in monthHeaders" :key="month" class="sticky top-0 z-10 border border-slate-200 p-1 text-left bg-slate-100 dark:border-slate-700 dark:bg-slate-800">{{ month }}</th>
               </tr>
             </thead>
@@ -175,6 +184,8 @@ const formatDate = (date: Date) => {
 const beginDate = ref(formatDate(new Date(now.getFullYear() - 1, 8, 1)));
 const endDate = ref(formatDate(now));
 const selectedChurchGroupId = ref(0);
+const eventTypes = ['Prayer Meeting', 'WHS', 'PRM', 'LG'];
+const selectedEventType = ref(eventTypes[0]);
 
 const loading = ref(false);
 const errorMessage = ref('');
@@ -195,7 +206,8 @@ const fetchData = async () => {
 
 const fetchByNetworkData = async () => {
   try {
-    const url = `/api/report/ecoprayerattendancebydate/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}`;
+    const eventQuery = selectedEventType.value ? `?eventType=${encodeURIComponent(selectedEventType.value)}` : '';
+    const url = `/api/report/ecoprayerattendancebydate/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}${eventQuery}`;
     data_prayer.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
@@ -204,7 +216,8 @@ const fetchByNetworkData = async () => {
 
 const fetchByChurchData = async () => {
   try {
-    const url = `/api/report/ecoprayerattendancebychurch/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}`;
+    const eventQuery = selectedEventType.value ? `?eventType=${encodeURIComponent(selectedEventType.value)}` : '';
+    const url = `/api/report/ecoprayerattendancebychurch/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}${eventQuery}`;
     data_prayer_bychurch.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
@@ -317,7 +330,7 @@ const copied = ref(false);
 const copiedMonthly = ref(false);
 
 function copyTableToClipboard() {
-  const header = ['Category', ...dates.value].join('\t');
+  const header = ['Network', ...dates.value].join('\t');
   const rows = categories.value.map(cat =>
     [cat, ...dates.value.map(d => getPivotValue(cat, d))].join('\t')
   );
@@ -337,7 +350,7 @@ function copyChurchTableToClipboard() {
 }
 
 function copyMonthlyTableToClipboard() {
-  const header = ['Category', ...monthHeaders.value].join('\t');
+  const header = ['Network', ...monthHeaders.value].join('\t');
   const rows = categories.value.map(cat =>
     [cat, ...monthHeaders.value.map(m => getMonthlyAvg(cat, m))].join('\t')
   );
