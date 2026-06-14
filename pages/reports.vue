@@ -3,13 +3,19 @@
     <!-- Filters -->
     <div class="flex flex-wrap items-end gap-4 mb-6 mt-8 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm shadow-slate-200/60 backdrop-blur dark:border-slate-700 dark:bg-slate-900/90 dark:shadow-none">
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Fiscal Year</label>
+        <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Begin Date</label>
         <input
-          type="number"
-          v-model.number="endYear"
-          min="2000"
-          max="2100"
-          class="border border-slate-300 bg-white text-slate-900 rounded px-3 py-1.5 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          type="date"
+          v-model="beginDate"
+          class="border border-slate-300 bg-white text-slate-900 rounded px-3 py-1.5 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">End Date</label>
+        <input
+          type="date"
+          v-model="endDate"
+          class="border border-slate-300 bg-white text-slate-900 rounded px-3 py-1.5 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         />
       </div>
       <div class="flex flex-col gap-1">
@@ -162,7 +168,12 @@ import { CHURCHGROUPS } from '../composables/constants';
 const auth = useAuth();
 
 const now = new Date();
-const endYear = ref(now.getFullYear());
+const formatDate = (date: Date) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
+const beginDate = ref(formatDate(new Date(now.getFullYear() - 1, 8, 1)));
+const endDate = ref(formatDate(now));
 const selectedChurchGroupId = ref(0);
 
 const loading = ref(false);
@@ -172,6 +183,7 @@ const data_prayer = ref<Array<any>>([]);
 const data_prayer_bychurch = ref<Array<any>>([]);
 
 const fetchData = async () => {
+  errorMessage.value = '';
   await fetchByNetworkData()
   await fetchByChurchData()
 }
@@ -180,8 +192,7 @@ const fetchByNetworkData = async () => {
   loading.value = true;
   errorMessage.value = '';
   try {
-    const beginYear = endYear.value - 1
-    const url = `/api/report/ecoprayerattendancebydate/weekly/${beginYear}-09-01/${endYear.value}-09-01/${selectedChurchGroupId.value}`;
+    const url = `/api/report/ecoprayerattendancebydate/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}`;
     data_prayer.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
@@ -194,8 +205,7 @@ const fetchByChurchData = async () => {
   loading.value = true;
   errorMessage.value = '';
   try {
-    const beginYear = endYear.value - 1
-    const url = `/api/report/ecoprayerattendancebychurch/weekly/${beginYear}-09-01/${endYear.value}-09-01/${selectedChurchGroupId.value}`;
+    const url = `/api/report/ecoprayerattendancebychurch/weekly/${beginDate.value}/${endDate.value}/${selectedChurchGroupId.value}`;
     data_prayer_bychurch.value = await auth.apiFetch(url);
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'Unable to load data.';
