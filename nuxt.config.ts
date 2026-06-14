@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import federation from '@originjs/vite-plugin-federation'
 
 export default defineNuxtConfig({
   app: {
@@ -19,5 +20,17 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss'],
   tailwindcss: {
     viewer: false
+  },
+  vite: {
+    plugins: [
+      federation({
+        name: 'reports',
+        filename: 'remoteEntry.js',
+        exposes: {
+          './RemoteEntry': './components/RemoteEntry.vue'
+        },
+        shared: {}
+      })
+    ]
   }
 })
